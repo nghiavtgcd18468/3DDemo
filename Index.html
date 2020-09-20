@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Demo 3D</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <link href="css/styles.css" rel="stylesheet"/>
+
+    <script src="xeogl.js"></script>
+
+    <script src="js/models/glTFModel.js"></script>
+    <script src="js/models/OBJModel.js"></script>
+
+    <script src="js/annotations/pin.js"></script>
+    <script src="js/annotations/annotation.js"></script>
+    <link href="js/annotations/annotation-style.css" rel="stylesheet"/>
+
+    <script src="js/libs/dat.gui.min.js"></script>
+<body>
+<div id="dat-gui-container">
+</div>
+
+<script>
+
+//     var model = new xeogl.GLTFModel({
+//         id: 'dam',
+//    src: "http://localhost:5500/demoModel/scene.gltf",
+//    materialWorkflow: "MetallicMaterial"
+// //    transform: new xeogl.Rotate({
+// //        xyz: [1, 0, 0],
+// //        angle: 90
+// //    })
+// });
+
+var model = new xeogl.OBJModel({
+        id: 'dam',
+   src: "objModel1/Miami_Sample.obj",
+//    src: "http://localhost:5500/bridge/cauTTL.obj",
+   materialWorkflow: "MetallicMaterial"
+//    transform: new xeogl.Rotate({
+//        xyz: [1, 0, 0],
+//        angle: 90
+//    })
+});
+
+model.on("loaded", function () {
+
+   // Position the camera to look at the model
+
+   var camera = model.scene.camera;
+   camera.eye = [-110.89, -44.85, 276.65];
+   camera.look = [-110.89, -44.85, -0.46];
+   camera.up = [0, 1, 0];
+   camera.zoom(20);
+
+   // Create three annotations on meshes
+   // within the model
+
+    console.log(model.meshes)
+
+   var a1 = new xeogl.Annotation({
+       mesh: "dam#Miami_Sample_c_skp62F-auto", // Red handle
+       primIndex: 125,
+       bary: [0.3, 0.3, 0.3],
+       occludable: true,
+       glyph: "2",
+       title: "Handle",
+       desc: "This is the handle. It allows us to grab onto the saw so we can hold it and make things with it.",
+       eye: [-355.481, -0.871, 116.711],
+       look: [-227.456, -57.628, 5.428],
+       up: [0.239, 0.948, -0.208],
+       pinShown: true,
+       labelShown: false
+   });
+
+   var a2 = new xeogl.Annotation({
+       mesh: model.meshes[156], // Red handle and cover
+       primIndex: 10260,
+       bary: [0.333, 0.333, 0.333],
+       occludable: true,
+       glyph: "2",
+       title: "Handle and cover",
+       desc: "This is the handle and cover. It provides something grab the saw with, and covers the things inside.",
+       eye: [-123.206, -4.094, 169.849],
+       look: [-161.838, -37.875, 37.313],
+       up: [-0.066, 0.971, -0.228],
+       pinShown: true,
+       labelShown: false
+   });
+
+   var a3 = new xeogl.Annotation({
+       mesh: model.meshes[796], // Barrel
+       primIndex: 3783,
+       bary: [110.3, 30.3, 40.3],
+       occludable: true,
+       glyph: "1",
+       title: "Tuyến số 1",
+       desc: "Chi tiết... <br/> <a href='http://google.com' target='_blank'>Google</a>",
+       eye: [80.0345, 38.255, 60.457],
+       look: [35.023, -0.166, 8.679],
+       up: [-0.320, 0.872, -0.368],
+       pinShown: true,
+       labelShown: false
+   });
+
+   // When each annotation's pin is clicked, we'll show the
+   // annotation's label and fly the camera to the
+   // annotation's vantage point
+
+   var cameraFlight = new xeogl.CameraFlightAnimation();
+   var lastAnnotation;
+
+   function pinClicked(annotation) {
+       if (lastAnnotation) {
+           annotation.labelShown = false;
+       }
+    //    else {
+        annotation.labelShown = true;
+        cameraFlight.flyTo(annotation);
+    //    }
+        lastAnnotation = annotation;
+   }
+
+   a1.on("pinClicked", pinClicked);
+   a2.on("pinClicked", pinClicked);
+   a3.on("pinClicked", pinClicked);
+
+   a3.on('click', () => {
+       console.log('clicked')
+   })
+
+   // If desired, we can also dynamically track the Cartesian coordinates
+   // of each annotation in Local and World coordinate spaces
+
+   a1.on("localPos", function(localPos) {
+       console.log("Local pos changed: " + JSON.stringify(localPos, null, "\t"));
+   });
+
+   a1.on("worldPos", function(worldPos) {
+       console.log("World pos changed: " + JSON.stringify(worldPos, null, "\t"));
+   });
+});
+
+new xeogl.CameraControl();
+
+</script>
+</body>
+</html>
